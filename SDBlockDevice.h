@@ -32,19 +32,36 @@
 /** Access an SD Card using SPI
  *
  * @code
- * #include "mbed.h"
- * #include "SDBlockDevice.h"
- *
- * SDBlockDevice sd(p5, p6, p7, p12); // mosi, miso, sclk, cs
- * uint8_t block[512] = "Hello World!\n";
- *
- * int main() {
- *     sd.init();
- *     sd.write(block, 0, 512);
- *     sd.read(block, 0, 512);
- *     printf("%s", block);
- *     sd.deinit();
- * }
+ *  #include "mbed.h"
+ *  #include "SDBlockDevice.h"
+ *  
+ *  // Create SD device on SPI bus
+ *  SDBlockDevice sd(PTE3, PTE1, PTE2, PTE4); // mosi, miso, sclk, cs
+ *  
+ *  int main() {
+ *      printf("sd test\n");
+ *  
+ *      // Initialize the SPI flash device and print the memory layout
+ *      sd.init();
+ *      printf("sd size: %llu\n",         sd.size());
+ *      printf("sd read size: %llu\n",    sd.get_read_size());
+ *      printf("sd program size: %llu\n", sd.get_program_size());
+ *      printf("sd erase size: %llu\n",   sd.get_erase_size());
+ *  
+ *      // Write "Hello World!" to the first block
+ *      char *buffer = (char*)malloc(sd.get_erase_size());
+ *      sprintf(buffer, "Hello World!\n");
+ *      sd.erase(0, sd.get_erase_size());
+ *      sd.program(buffer, 0, sd.get_erase_size());
+ *  
+ *      // Read back what was stored
+ *      sd.read(buffer, 0, sd.get_erase_size());
+ *      printf("%s", buffer);
+ *  
+ *      // Deinitialize the device
+ *      sd.deinit();
+ *  }
+ *  @endcode
  */
 class SDBlockDevice : public BlockDevice {
 public:
